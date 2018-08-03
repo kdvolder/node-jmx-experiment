@@ -5,12 +5,17 @@ This repo contains some experimental code to try and use the
 [node-jmx][https://github.com/zuazo/node-jmx] library to
 connect to a Java process that has JMX enabled.
 
-Project Contents:
------------------
+Usage:
+------
 
-hello-boot-app:
-    Contains 'assets' related to launching a 'Hello World' 
-    spring boot app. This is our test subject.
+1. Build and tun the sample boot app found under `hello-boot-app` directory by using
+the `build.sh` and `run.sh` scripts respectively.
+
+2. Open this project in vscode.
+
+3. Open `src/index.ts` (in vscode).
+
+4. Run it by pressing `F5`.
 
 Problems encountered:
 --------------------
@@ -32,5 +37,5 @@ Resolved by doing:
 ```
 sudo apt-get install build-essential
 ```
- 
+
 

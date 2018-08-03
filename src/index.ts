@@ -58,7 +58,7 @@ async function main(): Promise<void> {
   let memBean = await getAttribute(
     client,
     'java.lang:type=Memory',
-    'HeapMemoryUsageXXX' //This is wrong! So we can test handling errors here.
+    'HeapMemoryUsage'
   );
   let usedPromise = new Promise<string>((resolve, reject) => {
     memBean.get('used', (error: any, data: any) => {
