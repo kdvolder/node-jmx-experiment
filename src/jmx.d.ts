@@ -15,6 +15,7 @@ interface JmxClient {
 
   on(event: 'connect' | 'disconnect', handler: Callback0): void;
   on(event: 'error', handler: ErrorHandler): void;
+  removeListener(event: 'error', handler: ErrorHandler): void;
 
   getAttribute(
     mbean: string,

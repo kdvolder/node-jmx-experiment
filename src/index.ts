@@ -1,18 +1,39 @@
 import * as jmx from 'jmx';
 import { resolve } from 'url';
+import { on } from 'cluster';
+
+function doFinally<T>(p: Promise<T>, handler: () => void) {
+    //Not sure why, but Promise.finally method doesn't seem to work (too old nodejs?)
+    // So make our own function to do that instead.
+    return p.then(
+        (v) => {
+            handler();
+            return v;
+        },
+        (e) => {
+            handler();
+            throw e;
+        }
+    );
+}
 
 function connect(): Promise<JmxClient> {
-  return new Promise((resolve, reject) => {
+    let rejector: ErrorHandler;
     const client = jmx.createClient({
-      host: 'localhost',
-      port: 9999,
+        host: 'localhost',
+        port: 9999,
     });
-    client.on('connect', () => {
-      resolve(client);
+    const p = new Promise<JmxClient>((resolve, reject) => {
+        rejector = reject;
+        client.on('connect', () => {
+            resolve(client);
+        });
+        client.on('error', reject);
+        client.connect();
     });
-    client.on('error', reject);
-    client.connect();
-  });
+    return doFinally(p, () => {
+        client.removeListener('error', rejector)
+    });
 }
 
 function getAttribute(
@@ -20,14 +41,15 @@ function getAttribute(
   mbean: string,
   attrib: string
 ): Promise<any> {
-  return new Promise<any>((resolve, reject) => {
+  let rejector: ErrorHandler;
+  const p = new Promise<any>((resolve, reject) => {
+    rejector = reject;
+    client.on('error', reject);
     client.getAttribute(mbean, attrib, data => {
       resolve(data);
     });
-    //TODO: from the docs, its unclear to me how (or even if)
-    // client.getAttribute signals errors. Should try this out
-    // and see what happens with unknown attributes, for example.
   });
+  return doFinally(p, () => client.removeListener('error', rejector));
 }
 
 async function main(): Promise<void> {
@@ -36,7 +58,7 @@ async function main(): Promise<void> {
   let memBean = await getAttribute(
     client,
     'java.lang:type=Memory',
-    'HeapMemoryUsage'
+    'HeapMemoryUsageXXX' //This is wrong! So we can test handling errors here.
   );
   let usedPromise = new Promise<string>((resolve, reject) => {
     memBean.get('used', (error: any, data: any) => {
