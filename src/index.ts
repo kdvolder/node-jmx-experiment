@@ -52,6 +52,23 @@ function getAttribute(
   return doFinally(p, () => client.removeListener('error', rejector));
 }
 
+function performOperation(
+  client: JmxClient,
+  mbean: string,
+  operation: string,
+  arg: string
+) : Promise<any> {
+  let rejector : ErrorHandler;
+  const p = new Promise<any>((resolve, reject) => {
+    rejector = reject;
+    client.on('error', reject);
+    client.invoke(mbean, operation, [arg], data => {
+      resolve(data);
+    });
+  });
+  return doFinally(p, () => client.removeListener('error', rejector));
+}
+
 async function main(): Promise<void> {
   let client = await connect();
   console.log('Client Connected!');
@@ -70,6 +87,12 @@ async function main(): Promise<void> {
     });
   });
   console.log('HeapMemoryUsage used: ' + (await usedPromise));
+
+  let port = await performOperation(client, "org.springframework.boot:type=Admin,name=SpringApplication", 
+    "getProperty", 
+    "local.server.port"
+  );
+  console.log("port = "+port);
 }
 
 main().catch(err => {

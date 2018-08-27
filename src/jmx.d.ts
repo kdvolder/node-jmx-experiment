@@ -22,6 +22,14 @@ interface JmxClient {
     attributes: string | string[],
     callback: Callback1
   ): void;
+
+  invoke(
+    mbean: string, 
+    methodName: string, 
+    params: any[], 
+    callback: Callback1
+  ): void;
+
 }
 
 declare module 'jmx' {
