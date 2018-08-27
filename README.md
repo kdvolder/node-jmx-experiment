@@ -2,7 +2,7 @@ Node JMX Experiment
 ===================
 
 This repo contains some experimental code to try and use the
-[node-jmx][https://github.com/zuazo/node-jmx] library to
+[node-jmx](https://github.com/zuazo/node-jmx) library to
 connect to a Java process that has JMX enabled.
 
 Usage:
